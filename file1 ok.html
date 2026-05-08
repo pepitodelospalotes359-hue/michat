@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#25d366">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<title>MiChat</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{background:#111;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.app{display:flex;flex:1;background:#fff;min-height:0}
+.sidebar{width:340px;border-right:1px solid #e9edef;display:flex;flex-direction:column;background:#fff;flex-shrink:0}
+.sidebar-header{padding:12px 16px;background:#f0f2f5;display:flex;align-items:center;gap:10px;height:60px}
+.my-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0}
+.my-info{flex:1;min-width:0}.my-name{font-size:14px;font-weight:600;color:#111}
+.my-code{font-size:11px;color:#25d366;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px}
+.sidebar-actions{display:flex;gap:2px}
+.icon-btn{width:36px;height:36px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:50%;color:#54656f;font-size:20px}
+.icon-btn:hover{background:#e9edef}
+.search-wrap{padding:8px 12px;background:#f0f2f5;position:relative}
+.search-wrap input{width:100%;padding:8px 12px 8px 38px;border-radius:8px;border:none;background:#fff;font-size:13px;color:#111;outline:none}
+.search-wrap .si{position:absolute;left:22px;top:50%;transform:translateY(-50%);color:#54656f;font-size:17px;pointer-events:none}
+.tabs{display:flex;border-bottom:1px solid #e9edef}
+.tab{flex:1;padding:9px 4px;text-align:center;font-size:13px;cursor:pointer;color:#54656f;border-bottom:2px solid transparent;font-weight:500}
+.tab.active{color:#25d366;border-bottom:2px solid #25d366}
+.chat-list{flex:1;overflow-y:auto}
+.chat-list::-webkit-scrollbar{width:4px}
+.chat-list::-webkit-scrollbar-thumb{background:#d0d7db;border-radius:4px}
+.chat-item{display:flex;align-items:center;gap:12px;padding:10px 16px;cursor:pointer;border-bottom:1px solid #f0f2f5}
+.chat-item:hover{background:#f5f6f6}.chat-item.active{background:#f0f2f5}
+.av-wrap{position:relative;flex-shrink:0}
+.avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600}
+.dot{width:11px;height:11px;border-radius:50%;background:#25d366;border:2px solid #fff;position:absolute;bottom:1px;right:1px}
+.chat-info{flex:1;min-width:0}
+.chat-name-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.chat-name{font-size:15px;font-weight:500;color:#111}
+.chat-time{font-size:11px;color:#667781}
+.chat-preview{font-size:13px;color:#667781;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.main{flex:1;display:flex;flex-direction:column;background:#efeae2;min-width:0}
+.main-header{padding:0 16px;background:#f0f2f5;display:flex;align-items:center;gap:12px;height:60px;border-bottom:1px solid #e9edef;flex-shrink:0}
+.header-name{font-size:16px;font-weight:600;color:#111}.header-sub{font-size:12px;color:#667781}
+.header-actions{margin-left:auto;display:flex;gap:2px}
+.messages{flex:1;overflow-y:auto;padding:16px 10%;display:flex;flex-direction:column;gap:3px}
+.day-sep{text-align:center;margin:10px 0}
+.day-sep span{background:#e1f2fa;color:#54656f;font-size:11.5px;padding:4px 12px;border-radius:8px}
+.msg{max-width:60%;padding:6px 12px 4px;border-radius:10px;font-size:14px;line-height:1.45;word-break:break-word;animation:fadeIn .15s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.msg.sent{background:#dcf8c6;align-self:flex-end;border-bottom-right-radius:3px;color:#111}
+.msg.recv{background:#fff;align-self:flex-start;border-bottom-left-radius:3px;color:#111;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.msg .sender{font-size:12px;font-weight:600;color:#25d366;margin-bottom:2px}
+.msg-meta{display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:2px}
+.msg-meta .time{font-size:11px;color:#667781}
+.msg-meta .check{font-size:14px;color:#53bdeb}
+.msg-input-wrap{padding:8px 16px;background:#f0f2f5;display:flex;gap:10px;align-items:center;flex-shrink:0}
+.msg-input-wrap input{flex:1;padding:10px 18px;border-radius:24px;border:none;background:#fff;font-size:15px;color:#111;outline:none}
+.send-btn{width:44px;height:44px;border-radius:50%;background:#25d366;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;flex-shrink:0}
+.send-btn:hover{background:#128c7e}
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#667781;gap:14px;background:#f8f9fa}
+.empty-state h2{font-size:22px;font-weight:300;color:#41525d}
+.empty-state p{font-size:14px;max-width:280px;text-align:center;line-height:1.6}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(2px)}
+.modal{background:#fff;border-radius:16px;padding:28px;width:380px;box-shadow:0 8px 40px rgba(0,0,0,.15)}
+.modal h3{font-size:18px;font-weight:600;margin-bottom:18px;color:#111;display:flex;align-items:center;gap:8px}
+.modal label{font-size:12px;color:#667781;font-weight:500;display:block;margin-bottom:5px}
+.modal input{width:100%;padding:10px 14px;border:1.5px solid #e9edef;border-radius:10px;font-size:14px;margin-bottom:14px;color:#111;outline:none}
+.modal input:focus{border-color:#25d366}
+.modal-btns{display:flex;gap:10px;margin-top:6px}
+.btn-green{flex:1;padding:11px;background:#25d366;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600}
+.btn-green:hover{background:#128c7e}
+.btn-cancel{flex:1;padding:11px;background:none;color:#667781;border:1.5px solid #e9edef;border-radius:10px;cursor:pointer;font-size:14px}
+.chip{display:inline-flex;align-items:center;gap:4px;background:#e9edef;border-radius:20px;padding:4px 10px;font-size:12px;margin:2px;color:#111}
+.chip button{background:none;border:none;cursor:pointer;color:#667781;font-size:13px;padding:0 0 0 2px}
+.code-badge{background:#e9fbe9;color:#1a7a3a;font-size:12px;padding:4px 10px;border-radius:6px;font-family:monospace;font-weight:700}
+#installBar{background:#075e54;color:#fff;padding:8px 16px;display:none;align-items:center;gap:12px;font-size:13px;flex-shrink:0}
+.tooltip{position:relative}
+.tooltip:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#333;color:#fff;font-size:11px;padding:4px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:999}
+</style>
+</head>
+<body>
+<div id="installBar">
+  <i class="ti ti-device-desktop-download" style="font-size:18px"></i>
+  Instala MiChat en tu PC
+  <button style="background:#25d366;color:#fff;border:none;padding:6px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;margin-left:8px" onclick="installApp()">Instalar ahora</button>
+  <button style="background:none;border:none;color:#fff;cursor:pointer;margin-left:auto;font-size:18px" onclick="this.parentElement.style.display='none'">✕</button>
+</div>
+<div class="app" id="app">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="my-avatar" id="myAv"></div>
+      <div class="my-info">
+        <div class="my-name" id="myName"></div>
+        <div class="my-code tooltip" id="myCode" data-tip="Clic para copiar" onclick="copyCode()"></div>
+      </div>
+      <div class="sidebar-actions">
+        <button class="icon-btn tooltip" data-tip="Añadir amigo" onclick="openAddFriend()"><i class="ti ti-user-plus"></i></button>
+        <button class="icon-btn tooltip" data-tip="Crear grupo" onclick="openCreateGroup()"><i class="ti ti-users-plus"></i></button>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <i class="ti ti-search si"></i>
+      <input placeholder="Buscar o empezar un chat..." oninput="filterChats(this.value)">
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="setTab('all',this)">Todos</div>
+      <div class="tab" onclick="setTab('private',this)">Chats</div>
+      <div class="tab" onclick="setTab('group',this)">Grupos</div>
+    </div>
+    <div class="chat-list" id="chatList"></div>
+  </div>
+  <div class="main">
+    <div class="empty-state" id="emptyState">
+      <i class="ti ti-message-dots" style="font-size:72px;color:#25d366;opacity:.35"></i>
+      <h2>MiChat</h2>
+      <p>Selecciona un chat o añade un amigo con su código único</p>
+    </div>
+    <div id="chatPanel" style="display:none;flex-direction:column;height:100%">
+      <div class="main-header">
+        <div class="av-wrap">
+          <div class="avatar" id="chatAv" style="width:42px;height:42px;font-size:14px"></div>
+          <div class="dot" id="onlineDot" style="display:none"></div>
+        </div>
+        <div>
+          <div class="header-name" id="chatName"></div>
+          <div class="header-sub" id="chatSub"></div>
+        </div>
+        <div class="header-actions">
+          <button class="icon-btn tooltip" data-tip="Más opciones"><i class="ti ti-dots-vertical"></i></button>
+        </div>
+      </div>
+      <div class="messages" id="messages"></div>
+      <div class="msg-input-wrap">
+        <input id="msgInput" placeholder="Escribe un mensaje..." onkeydown="if(event.key==='Enter')sendMsg()">
+        <button class="send-btn" onclick="sendMsg()"><i class="ti ti-send"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="modalRoot"></div>
+<script>
+const COLORS=[['#dcf8c6','#075e54'],['#dce8fc','#1a56c4'],['#fce8dc','#c44a1a'],['#ecdcfc','#7a1ac4'],['#dcfce8','#1a8c4a'],['#fcf0dc','#c4821a'],['#fcdce8','#c41a6e'],['#dcf0fc','#1a7ac4']];
+function rColor(s){let h=0;for(let c of s)h=(h<<5)-h+c.charCodeAt(0);const[bg,fg]=COLORS[Math.abs(h)%COLORS.length];return{bg,fg}}
+function rCode(){return'#'+Math.random().toString(36).substr(2,6).toUpperCase()}
+function initials(n){return n.split(' ').map(w=>w[0]).join('').toUpperCase().substr(0,2)}
+function tsNow(){return new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}
+function today(){return new Date().toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'})}
+const me={name:'Yo',code:rCode(),color:rColor('me_user_pc')};
+document.getElementById('myAv').style.cssText='background:'+me.color.bg+';color:'+me.color.fg;
+document.getElementById('myAv').textContent=initials(me.name);
+document.getElementById('myName').textContent=me.name;
+document.getElementById('myCode').innerHTML='<i class="ti ti-copy" style="font-size:11px"></i> '+me.code;
+document.getElementById('myCode').style.cssText='font-size:11px;color:#25d366;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:3px';
+function copyCode(){navigator.clipboard.writeText(me.code).then(()=>{const el=document.getElementById('myCode');el.innerHTML='<i class="ti ti-check" style="font-size:11px"></i> ¡Copiado!';setTimeout(()=>{el.innerHTML='<i class="ti ti-copy" style="font-size:11px"></i> '+me.code},1500)})}
+let contacts=[];
+let currentId=null,activeTab='all',searchQ='';
+function filterChats(q){searchQ=q;renderList()}
+function setTab(t,el){activeTab=t;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderList()}
+function renderList(){const el=document.getElementById('chatList');const items=contacts.filter(c=>{if(activeTab==='private'&&c.type!=='private')return false;if(activeTab==='group'&&c.type!=='group')return false;return c.name.toLowerCase().includes(searchQ.toLowerCase())});el.innerHTML=items.map(c=>{const last=c.messages.at(-1);const preview=last?(last.from==='me'?'Tú: ':last.from.split(' ')[0]+': ')+last.text:'Sin mensajes';const icon=c.type==='group'?'<i class="ti ti-users" style="font-size:20px"></i>':initials(c.name);return'<div class="chat-item'+(currentId===c.id?' active':'')+'" onclick="openChat(\''+c.id+'\')">'+'<div class="av-wrap"><div class="avatar" style="background:'+c.color.bg+';color:'+c.color.fg+'">'+icon+'</div>'+(c.type==='private'&&c.online?'<div class="dot"></div>':'')+'</div>'+'<div class="chat-info"><div class="chat-name-row"><span class="chat-name">'+c.name+'</span><span class="chat-time">'+(last?last.time:'')+'</span></div><div class="chat-preview">'+preview.substr(0,42)+(preview.length>42?'…':'')+'</div></div></div>'}).join('')}
+function openChat(id){currentId=id;const c=contacts.find(x=>x.id===id);document.getElementById('emptyState').style.display='none';const panel=document.getElementById('chatPanel');panel.style.display='flex';const av=document.getElementById('chatAv');av.style.background=c.color.bg;av.style.color=c.color.fg;av.innerHTML=c.type==='group'?'<i class="ti ti-users" style="font-size:18px"></i>':initials(c.name);document.getElementById('onlineDot').style.display=(c.type==='private'&&c.online)?'block':'none';document.getElementById('chatName').textContent=c.name;document.getElementById('chatSub').textContent=c.type==='group'?c.members.length+1+' miembros':c.online?'En línea':'Desconectado';renderMessages(c);renderList();document.getElementById('msgInput').focus()}
+function renderMessages(c){const box=document.getElementById('messages');box.innerHTML='<div class="day-sep"><span>Hoy, '+today()+'</span></div>'+c.messages.map(m=>{const sent=m.from==='me';return'<div class="msg '+(sent?'sent':'recv')+'">'+((!sent&&c.type==='group')?'<div class="sender">'+m.from+'</div>':'')+m.text+'<div class="msg-meta"><span class="time">'+m.time+'</span>'+(sent?'<i class="ti ti-checks check"></i>':'')+'</div></div>'}).join('');box.scrollTop=box.scrollHeight}
+function sendMsg(){const inp=document.getElementById('msgInput');const txt=inp.value.trim();if(!txt||!currentId)return;const c=contacts.find(x=>x.id===currentId);c.messages.push({from:'me',text:txt,time:tsNow()});inp.value='';renderMessages(c);renderList();if(c.type==='private'&&Math.random()>.25){setTimeout(()=>{const r=['¡Genial!','👍','Ok!','¿En serio?','Claro','Perfecto','De acuerdo 👌'];c.messages.push({from:c.name,text:r[Math.floor(Math.random()*r.length)],time:tsNow()});renderMessages(c);renderList()},800+Math.random()*2000)}}
+function openAddFriend(){document.getElementById('modalRoot').innerHTML='<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal"><h3><i class="ti ti-user-plus" style="color:#25d366"></i> Añadir amigo</h3><p style="font-size:13px;color:#667781;margin-bottom:16px">Tu código: <span class="code-badge">'+me.code+'</span></p><label>Nombre</label><input id="fName" placeholder="Ej: María López"><label>Código del amigo</label><input id="fCode" placeholder="#AB12CD" maxlength="7"><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-green" onclick="addFriend()">Añadir</button></div></div></div>';document.getElementById('fName').focus()}
+function addFriend(){const name=document.getElementById('fName').value.trim();const code=document.getElementById('fCode').value.trim().toUpperCase();if(!name){alert('Escribe un nombre');return}if(!code.match(/^#[A-Z0-9]{6}$/)){alert('Código inválido. Formato: #XXXXXX');return}const id='c'+Date.now();contacts.unshift({id,type:'private',name,code,color:rColor(name),online:Math.random()>.5,messages:[]});closeModal();renderList();openChat(id)}
+function openCreateGroup(){window._gm=[];document.getElementById('modalRoot').innerHTML='<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal"><h3><i class="ti ti-users-plus" style="color:#25d366"></i> Crear grupo</h3><label>Nombre del grupo</label><input id="gName" placeholder="Ej: Amigos del trabajo"><label>Añadir miembros</label><div style="display:flex;gap:8px;margin-bottom:10px"><input id="gM" placeholder="Nombre del miembro" style="flex:1;margin:0" onkeydown="if(event.key===\'Enter\')addMember()"><button class="btn-green" style="width:auto;padding:0 16px;border-radius:10px;flex-shrink:0" onclick="addMember()">+</button></div><div id="chips" style="min-height:32px;margin-bottom:12px"></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-green" onclick="createGroup()">Crear grupo</button></div></div></div>';document.getElementById('gName').focus()}
+function addMember(){const inp=document.getElementById('gM');const n=inp.value.trim();if(!n)return;window._gm.push(n);inp.value='';renderChips();inp.focus()}
+function renderChips(){document.getElementById('chips').innerHTML=window._gm.map((m,i)=>'<span class="chip">'+m+'<button onclick="window._gm.splice('+i+',1);renderChips()">✕</button></span>').join('')}
+function createGroup(){const name=document.getElementById('gName').value.trim();if(!name){alert('Escribe un nombre');return}const id='g'+Date.now();contacts.unshift({id,type:'group',name,members:[...window._gm],color:rColor(name),messages:[{from:'Sistema',text:'Grupo "'+name+'" creado',time:tsNow()}]});closeModal();renderList();openChat(id)}
+function closeModal(){document.getElementById('modalRoot').innerHTML=''}
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBar').style.display='flex'});
+function installApp(){if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('installBar').style.display='none'})}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+renderList();
+</script>
+</body>
+</html>
